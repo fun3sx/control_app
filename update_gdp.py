@@ -42,6 +42,8 @@ def read_from_elstat():
             #print (y, 'q', j)
             quarters.append(str(y)+'Q'+str(j))
             i+=1
+	    if i == len(gdp):
+                break
         y+=1
     
     q = pd.DataFrame(quarters)
