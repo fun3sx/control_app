@@ -42,8 +42,8 @@ def read_from_elstat():
             #print (y, 'q', j)
             quarters.append(str(y)+'Q'+str(j))
             i+=1
-	    if i == len(gdp):
-                break
+            if i == len(gdp):
+               break
         y+=1
     
     q = pd.DataFrame(quarters)
@@ -96,7 +96,7 @@ def main(url):
         print ('here, updating')
         for item in to_update:
             response = api_functions.patch(url, item)
-            print (response.json(), response.status_code)
+            print (item, response.json(), response.status_code)
     
     
     #put new data to db
@@ -112,7 +112,8 @@ def main(url):
     
 if __name__ == "__main__":
 
-   url = "http://127.0.0.1:5000/gdp"
+   #url = "http://127.0.0.1:5000/gdp"
+   url = "https://api.interestingdata.eu/gdp"
    print (main(url))
    '''
    already_indb = api_functions.get(url)

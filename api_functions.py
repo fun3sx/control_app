@@ -12,11 +12,11 @@ def get(url):
 
 #vazw nea grammi
 def put(url, data):
-    return requests.put(url,data)
+    return requests.put(url,json=data)
     
 #kanw update ena row
 def patch(url, data):
-    return requests.patch(url,data)
+    return requests.patch(url,json=data)
     
 
 
