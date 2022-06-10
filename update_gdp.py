@@ -31,7 +31,7 @@ def read_from_elstat():
     with io.BytesIO(requests.get(target).content) as fh:
         df = pd.io.excel.read_excel(fh)
         
-    gdp = df.iloc[4:,5].dropna()
+    gdp = df.iloc[4:,2].dropna()
     gdp.reset_index(drop=True, inplace = True)
 
     y=1995
