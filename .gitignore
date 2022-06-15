@@ -18,6 +18,8 @@ lib/
 lib64/
 parts/
 sdist/
+bin/
+lib64
 var/
 wheels/
 pip-wheel-metadata/
@@ -109,6 +111,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*.cfg
 
 # Spyder project settings
 .spyderproject
