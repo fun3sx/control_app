@@ -9,16 +9,6 @@ import requests
 import pandas as pd
 import api_functions
 
-def get_from_api(url):
-    #read data from db
-    #BASE = "http://127.0.0.1:5000/hpi"
-    
-    #response = requests.patch(BASE,{'quarter':'2021*Q1','value':'177.26826423722648'})
-    return requests.get(url).json()
-    #already_indb = response.json()
-    #print (already_indb)
-    #print ("-"*10)
-    
 
 def read_from_bog():
     #read data from bank of greece
@@ -64,15 +54,24 @@ def check_for_new(already_indb, quarters, values):
         for q,v in zip(quarters[i:],values[i:]):
             #print (q,v)
             to_update.append({'quarter':q,'value':str(v)})
+    else:
+        #print ('here2')
+        i = len(list(filter(lambda x: '*' in x, quarters)))
+        #print (i)
+        for q,v in zip(quarters[-i:],values[-i:]):
+            #print (q,v)
+            to_update.append({'quarter':q,'value':str(v)})
         
     return to_enter, to_update
 
 def main(url):
    already_indb = api_functions.get(url)
+
    quarters, values = read_from_bog()
-   
+
    #determine what needs update and what is new, if any
    to_enter, to_update = check_for_new(already_indb, quarters, values)
+   
 
    #update data in db
    if len(to_update) > 0:
@@ -87,7 +86,8 @@ def main(url):
        print('new data in db', to_enter)
        response = api_functions.put(url, to_enter)
        print(response.json(), response.status_code)
-
+   
+   
    return 'all good from hpi'    
 
 
@@ -95,24 +95,6 @@ if __name__ == "__main__":
 
    url = "http://127.0.0.1:5000/hpi"
    print(main(url))
-   '''
-   already_indb = api_functions.get(url)
-   quarters, values = read_from_bog()
+   #res = main(url)
    
-   #determine what needs update and what is new, if any
-   to_enter, to_update = check_for_new(already_indb, quarters, values)
-
-   #update data in db
-   if len(to_update) > 0:
-       print ('here')
-       for item in to_update:
-           response = api_functions.patch(url, item)
-           print (response.json(), response.status_code)
-
-   
-   #put new data to db
-   if len(to_enter) > 0:
-       print('here2')
-       response = api_functions.put(url, to_enter)
-       print(response.json(), response.status_code)
-   '''
+  
