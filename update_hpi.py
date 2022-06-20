@@ -57,10 +57,15 @@ def check_for_new(already_indb, quarters, values):
     else:
         #print ('here2')
         i = len(list(filter(lambda x: '*' in x, quarters)))
+        j=0
         #print (i)
         for q,v in zip(quarters[-i:],values[-i:]):
-            #print (q,v)
-            to_update.append({'quarter':q,'value':str(v)})
+            if float(already_indb[-i+j]['value']) != v:
+                to_update.append({'quarter':q,'value':str(v)})
+            else:
+                pass
+            
+            j+=1
         
     return to_enter, to_update
 
@@ -72,7 +77,8 @@ def main(url):
    #determine what needs update and what is new, if any
    to_enter, to_update = check_for_new(already_indb, quarters, values)
    
-
+   #print (to_enter, to_update)
+   
    #update data in db
    if len(to_update) > 0:
        print ('updated hpi', to_update)
@@ -94,6 +100,7 @@ def main(url):
 if __name__ == "__main__":
 
    url = "http://127.0.0.1:5000/hpi"
+   #url = "https://api.interestingdata.eu/hpi"
    print(main(url))
    #res = main(url)
    
