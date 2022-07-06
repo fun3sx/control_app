@@ -91,7 +91,8 @@ def main(url):
     if len(to_enter) > 0:
         print('entering new data')
         response = api_functions.put(url, to_enter)
-        print(response.json(), response.status_code)
+        #print(response.json(), response.status_code)
+	print(response.status_code)
     
     #return df
     return "all good from enex"

@@ -17,7 +17,7 @@ base_url = "https://api.interestingdata.eu/"
 
 #check and update enex data
 
-print (main_hpi(base_url+'enex'))
+print (main_enex(base_url+'enex'))
 
 
 
