@@ -10,6 +10,7 @@ import datetime as dt
 from update_gdp import main as main_gdp
 from update_hpi import main as main_hpi
 from update_unpl import main as main_unpl
+from update_origination import main as main_origination
 
 
 print (dt.datetime.now().strftime("%Y/%m/%d - %H:%M"))
@@ -29,6 +30,10 @@ print (main_gdp(base_url+'gdp'))
 #check and update unemployment
 
 print (main_unpl(base_url+'unpl'))
+
+#check and update mortgage origination
+
+print (main_origination(base_url+'mortgage-origination'))
 
 
 
