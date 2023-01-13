@@ -17,7 +17,8 @@ from dateutil.relativedelta import relativedelta
 def read_from_bog():
     
     url = "https://www.bankofgreece.gr/RelatedDocuments/Rates_TABLE_1+1a.xls"
-    df = pd.read_excel(url,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+    #df = pd.read_excel(url,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+    df = pd.read_excel(url,sheet_name='ΠΟΣΑ_ΔΑΝΕΙΩΝ', index_col=0).iloc[7:,6]
 
     
     #unpl.reset_index(drop=True, inplace = True)
