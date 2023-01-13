@@ -16,7 +16,6 @@ import warnings
 
 def main(url):
     date = dt.datetime.strftime(dt.datetime.now(),"%Y%m%d")
-    
     print (date)
     
     filename = "https://www.enexgroup.gr/documents/20126/200106/"+date+"_EL-DAM_Results_EN_v01.xlsx"
@@ -91,9 +90,8 @@ def main(url):
     if len(to_enter) > 0:
         print('entering new data')
         response = api_functions.put(url, to_enter)
-        #print(response.json(), response.status_code)
-	print(response.status_code)
-    
+        print(response.status_code)
+
     #return df
     return "all good from enex"
 
