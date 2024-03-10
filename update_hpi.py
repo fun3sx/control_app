@@ -33,7 +33,8 @@ def read_from_bog():
             filedata = BytesIO(response.content)
     
             df = pd.read_excel(filedata)
-        except:
+        except Exception as e:
+            print (e)
             i+=1
             continue
         

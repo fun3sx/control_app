@@ -34,7 +34,8 @@ def read_from_bog():
             filedata = BytesIO(response.content)
     
             df = pd.read_excel(filedata,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
-        except:
+        except Exception as e:
+            print (e)
             i+=1
             continue
         
