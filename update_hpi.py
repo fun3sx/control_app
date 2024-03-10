@@ -8,12 +8,41 @@ Created on Sat May 28 12:32:36 2022
 import requests
 import pandas as pd
 import api_functions
+from proxies import get_proxies
+import random
+from io import BytesIO
 
 
 def read_from_bog():
+    
+    proxies = get_proxies()
+    random.shuffle(proxies)
+    
+    bog_url = "http://www.bankofgreece.gr/RelatedDocuments/TE_PRICES_INDICES_HISTORICAL_SERIES.xls"
+    
+    #read data from bank of greece via proxy
+    i=0
+    while i<len(proxies):
+        proxy_address = "http://" + proxies[i]['username'] + ":" + proxies[i]['password'] + "@" + proxies[i]['ip'] + ":" + str(proxies[i]['port'])
+        print(proxies[i]['ip'])
+        proxy_dict = {"http://" : proxy_address,
+                      "https://": proxy_address}
+        try:
+            response = requests.get(bog_url, proxies = proxy_dict)
+    
+            filedata = BytesIO(response.content)
+    
+            df = pd.read_excel(filedata)
+        except:
+            i+=1
+            continue
+        
+        break
+    
+    
     #read data from bank of greece
-    df = pd.read_excel("https://www.bankofgreece.gr/RelatedDocuments/TE_PRICES_INDICES_HISTORICAL_SERIES.xls")
-    #df = pd.read_excel("TE_PRICES_INDICES_HISTORICAL_SERIES.xls")
+    #df = pd.read_excel("https://www.bankofgreece.gr/RelatedDocuments/TE_PRICES_INDICES_HISTORICAL_SERIES.xls")
+    
     
     
     quarters, values = [],[]
@@ -35,18 +64,22 @@ def read_from_bog():
     return quarters, values
 
 def check_for_new(already_indb, quarters, values):
+    
     #to put new item in db
     to_enter = []
     if len(already_indb) < len(quarters):
-        to_enter = {'quarter': quarters.pop(), 'value' : str(values.pop())}
-    
+        num_items = len(quarters) - len(already_indb)
+        for i in range(num_items):
+            to_enter.append({'quarter': quarters.pop(-num_items + i), 'value' : str(values.pop(-num_items + i))})
+ 
+
     #update items already in db
     to_update = []
     #loop below finds the first instance where quarter is different
     breakflag = False
     for i in range(len(already_indb)):
         if already_indb[i]['quarter'] != quarters[i]:
-            print('edw')
+            #print('edw')
             breakflag = True
             break
     #print (i)
@@ -77,7 +110,9 @@ def main(url):
    #determine what needs update and what is new, if any
    to_enter, to_update = check_for_new(already_indb, quarters, values)
    
-   #print (to_enter, to_update)
+   #print(to_enter)
+   #print(to_update)
+   
    
    #update data in db
    if len(to_update) > 0:
@@ -86,12 +121,15 @@ def main(url):
            response = api_functions.patch(url, item)
            print (response.json(), response.status_code)
 
+   print ('-'*5)
    
    #put new data to db
    if len(to_enter) > 0:
-       print('new data in db', to_enter)
-       response = api_functions.put(url, to_enter)
-       print(response.json(), response.status_code)
+       for item in to_enter:
+           print('new data in db', item)
+           response = api_functions.put(url, item)
+           print(response.json(), response.status_code)
+   
    
    
    return 'all good from hpi'    
@@ -99,9 +137,11 @@ def main(url):
 
 if __name__ == "__main__":
 
-   url = "http://127.0.0.1:5000/hpi"
-   #url = "https://api.interestingdata.eu/hpi"
+   #url = "http://127.0.0.1:5000/hpi"
+   url = "https://api.interestingdata.eu/hpi"
+   
    print(main(url))
+   
    #res = main(url)
    
   

@@ -58,9 +58,11 @@ def check_for_new(already_indb, df):
     to_enter = []
 
     if len(already_indb) < len(df):
-        to_enter = {'quarter': df['quarter'].iloc[-1], 'value' : df['value'].iloc[-1]}
-    
-        df.drop(index=df.index[-1],axis=0,inplace=True)
+        num_items = len(df) - len(already_indb)
+        for i in range(num_items):
+            to_enter.append({'quarter': df['quarter'].iloc[-num_items + i], 'value' : df['value'].iloc[-num_items + i]})
+        
+            df.drop(index=df.index[-num_items + i],axis=0,inplace=True)
     
     
     #update items already in db
@@ -78,6 +80,8 @@ def check_for_new(already_indb, df):
 
 def main(url):
     already_indb = api_functions.get(url)
+    #print(already_indb[-1])
+    
     df = read_from_elstat()
     
     #for i in range(104,108):
@@ -87,9 +91,11 @@ def main(url):
     #to_enter, to_update = check_for_new(already_indb, pd.concat([df,pd.DataFrame({'quarter': ['2022Q1'], 'value': [12431.4664]})],ignore_index=True))
     to_enter, to_update = check_for_new(already_indb, df)
     
-    #print('here')
     
-    print (to_enter, to_update)
+    #print (to_enter)
+    #print ('-'*5)
+    #print (to_update)
+    
     
     #update data in db
     if len(to_update) > 0:
@@ -101,9 +107,11 @@ def main(url):
     
     #put new data to db
     if len(to_enter) > 0:
-        print('entering new data')
-        response = api_functions.put(url, to_enter)
-        print(response.json(), response.status_code)
+       for item in to_enter:
+           print('new data in db', item)
+           response = api_functions.put(url, item)
+           print(response.json(), response.status_code)
+    
     
     return 'all good from gdp'
     
@@ -115,32 +123,3 @@ if __name__ == "__main__":
    #url = "http://127.0.0.1:5000/gdp"
    url = "https://api.interestingdata.eu/gdp"
    print (main(url))
-   '''
-   already_indb = api_functions.get(url)
-   df = read_from_elstat()
-
-   #for i in range(104,108):
-       #df.iloc[i]['value'] = 123456.0+i
-
-   #determine what needs update and what is new, if any
-   #to_enter, to_update = check_for_new(already_indb, pd.concat([df,pd.DataFrame({'quarter': ['2022Q1'], 'value': [12431.4664]})],ignore_index=True))
-   to_enter, to_update = check_for_new(already_indb, df)
-   
-   #print('here')
-   
-   print (to_enter, to_update)
-   
-   #update data in db
-   if len(to_update) > 0:
-       print ('here, updating')
-       for item in to_update:
-           response = api_functions.patch(url, item)
-           print (response.json(), response.status_code)
-
-   
-   #put new data to db
-   if len(to_enter) > 0:
-       print('here2')
-       response = api_functions.put(url, to_enter)
-       print(response.json(), response.status_code)
-   '''

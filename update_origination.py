@@ -7,21 +7,46 @@ Created on Sat Jun 11 00:08:20 2022
 
 import api_functions
 import requests
-from bs4 import BeautifulSoup
 import pandas as pd
-import io
+from proxies import get_proxies
+import random
+from io import BytesIO
 import datetime as dt
-from dateutil.relativedelta import relativedelta
+
 
 
 def read_from_bog():
+    proxies = get_proxies()
+    random.shuffle(proxies)
     
-    url = "https://www.bankofgreece.gr/RelatedDocuments/Rates_TABLE_1+1a.xls"
-    #df = pd.read_excel(url,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
-    df = pd.read_excel(url,sheet_name='ΠΟΣΑ_ΔΑΝΕΙΩΝ', index_col=0).iloc[7:,6]
+    bog_url = "http://www.bankofgreece.gr/RelatedDocuments/Rates_TABLE_1+1a.xls"
+    
+    #read data from bank of greece via proxy
+    i=0
+    while i<len(proxies):
+        proxy_address = "http://" + proxies[i]['username'] + ":" + proxies[i]['password'] + "@" + proxies[i]['ip'] + ":" + str(proxies[i]['port'])
+        print(proxies[i]['ip'])
+        proxy_dict = {"http://" : proxy_address,
+                      "https://": proxy_address}
+        try:
+            response = requests.get(bog_url, proxies = proxy_dict)
+    
+            filedata = BytesIO(response.content)
+    
+            df = pd.read_excel(filedata,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+        except:
+            i+=1
+            continue
+        
+        break
 
     
-    #unpl.reset_index(drop=True, inplace = True)
+    
+    
+    #df = pd.read_excel(url,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+    #df = pd.read_excel(url,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+
+    
   
     
     return df
@@ -31,9 +56,11 @@ def check_for_new(already_indb, df):
     to_enter = []
 
     if len(already_indb) < len(df):
-        to_enter = {'month': dt.datetime.strftime(df.index[-1],'%Y%m'), 'value' : df.iloc[-1]}
+        num_items = len(df) - len(already_indb)
+        for i in range(num_items):
+            to_enter.append({'month': dt.datetime.strftime(df.index[-num_items + i],'%Y%m'), 'value' : df.iloc[-num_items + i]})
     
-        df.drop(index=df.index[-1],axis=0,inplace=True)
+            df.drop(index=df.index[-num_items + i],axis=0,inplace=True)
     
     
     #update items already in db
@@ -53,13 +80,17 @@ def check_for_new(already_indb, df):
 
 def main(url):
     already_indb = api_functions.get(url)
+    
     df = read_from_bog()
     
     
     #determine what needs update and what is new, if any
     to_enter, to_update = check_for_new(already_indb, df)
     
-    #print (to_enter, to_update)
+    #print (to_enter)
+    #print ('-'*5)
+    #print (to_update)
+    
     
     #update data in db
     if len(to_update) > 0:
@@ -71,9 +102,11 @@ def main(url):
     
     #put new data to db
     if len(to_enter) > 0:
-        print('entering new data')
-        response = api_functions.put(url, to_enter)
-        print(response.json(), response.status_code)
+       for item in to_enter:
+           print('new data in db', item)
+           response = api_functions.put(url, item)
+           print(response.json(), response.status_code)
+    
     
     #return df,already_indb
     return "all good from mortgage origination"

@@ -51,9 +51,11 @@ def check_for_new(already_indb, df):
     to_enter = []
 
     if len(already_indb) < len(df):
-        to_enter = {'month': df['month'].iloc[-1], 'value' : df['value'].iloc[-1]}
+        num_items = len(df) - len(already_indb)
+        for i in range(num_items):
+            to_enter.append({'month': df['month'].iloc[-num_items + i], 'value' : df['value'].iloc[-num_items + i]})
     
-        df.drop(index=df.index[-1],axis=0,inplace=True)
+            df.drop(index=df.index[-num_items + i],axis=0,inplace=True)
     
     
     #update items already in db
@@ -72,13 +74,18 @@ def check_for_new(already_indb, df):
 
 
 def main(url):
+    
     already_indb = api_functions.get(url)
+    
     df = read_from_elstat()
     
     #determine what needs update and what is new, if any
     to_enter, to_update = check_for_new(already_indb, df)
     
-    #print (to_enter, to_update)
+    #print (to_enter)
+    #print('-'*5)
+    #print(to_update)
+    
     
     #update data in db
     if len(to_update) > 0:
@@ -88,11 +95,15 @@ def main(url):
             print (item, response.json(), response.status_code)
     
     
+    print ('-'*5)
+   
     #put new data to db
     if len(to_enter) > 0:
-        print('entering new data')
-        response = api_functions.put(url, to_enter)
-        print(response.json(), response.status_code)
+       
+       for item in to_enter:     
+           print('new data in db', item)
+           response = api_functions.put(url, item)
+           print(response.json(), response.status_code)
     
     #return df
     return "all good from unpl"

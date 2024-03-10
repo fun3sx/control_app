@@ -20,21 +20,30 @@ base_url = "https://api.interestingdata.eu/"
 #base_url = "127.0.0.1:5000"
 
 #check and update HPI
-
-print (main_hpi(base_url+'hpi'))
-
+try:
+    print (main_hpi(base_url+'hpi'))
+except Exception as e:
+    print (e)
+    
+    
 #check and update GDP
-
-print (main_gdp(base_url+'gdp'))
-
+try:
+    print (main_gdp(base_url+'gdp'))
+except Exception as e:
+    print (e)
+    
 #check and update unemployment
-
-print (main_unpl(base_url+'unpl'))
-
+try:
+    print (main_unpl(base_url+'unpl'))
+except Exception as e:
+    print (e)
+    
 #check and update mortgage origination
-
-print (main_origination(base_url+'mortgage-origination'))
-
+try:
+    print (main_origination(base_url+'mortgage-origination'))
+except Exception as e:
+    print (e)
+    
 
 
 
