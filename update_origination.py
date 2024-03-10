@@ -18,6 +18,8 @@ import datetime as dt
 def read_from_bog():
     proxies = get_proxies()
     random.shuffle(proxies)
+    header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
     
     bog_url = "http://www.bankofgreece.gr/RelatedDocuments/Rates_TABLE_1+1a.xls"
     
@@ -29,11 +31,11 @@ def read_from_bog():
         proxy_dict = {"http://" : proxy_address,
                       "https://": proxy_address}
         try:
-            response = requests.get(bog_url, proxies = proxy_dict)
+            response = requests.get(bog_url, headers = header, proxies = proxy_dict)
     
             filedata = BytesIO(response.content)
     
-            df = pd.read_excel(filedata,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+            df = pd.read_excel(filedata, engine = 'xlrd', sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
         except Exception as e:
             print (e)
             i+=1

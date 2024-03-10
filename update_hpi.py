@@ -17,7 +17,8 @@ def read_from_bog():
     
     proxies = get_proxies()
     random.shuffle(proxies)
-    
+    header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
     bog_url = "http://www.bankofgreece.gr/RelatedDocuments/TE_PRICES_INDICES_HISTORICAL_SERIES.xls"
     
     #read data from bank of greece via proxy
@@ -28,11 +29,15 @@ def read_from_bog():
         proxy_dict = {"http://" : proxy_address,
                       "https://": proxy_address}
         try:
-            response = requests.get(bog_url, proxies = proxy_dict)
+            response = requests.get(bog_url, headers = header, proxies = proxy_dict)
     
             filedata = BytesIO(response.content)
+            
+            print("Response Headers:")
+            for header, value in response.headers.items():
+                print(header, ":", value)
     
-            df = pd.read_excel(filedata)
+            df = pd.read_excel(filedata, engine = 'xlrd')
         except Exception as e:
             print (e)
             i+=1
