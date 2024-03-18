@@ -8,51 +8,38 @@ Created on Sat Jun 11 00:08:20 2022
 import api_functions
 import requests
 import pandas as pd
-from proxies import get_proxies
-import random
+#from proxies import get_proxies
+#import random
 from io import BytesIO
 import datetime as dt
+import os
+from dotenv import load_dotenv, find_dotenv
 
 
 
 def read_from_bog():
-    proxies = get_proxies()
-    random.shuffle(proxies)
+    
+    load_dotenv(find_dotenv())
+    
+    proxy_address = os.environ.get("PROXY_ADDRESS")
+    
     header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
     
-    bog_url = "http://www.bankofgreece.gr/RelatedDocuments/Rates_TABLE_1+1a.xls"
+    bog_url = "https://www.bankofgreece.gr/RelatedDocuments/Rates_TABLE_1+1a.xls"
     
-    #read data from bank of greece via proxy
-    i=0
-    while i<len(proxies):
-        proxy_address = "http://" + proxies[i]['username'] + ":" + proxies[i]['password'] + "@" + proxies[i]['ip'] + ":" + str(proxies[i]['port'])
-        print(proxies[i]['ip'])
-        proxy_dict = {"http://" : proxy_address,
-                      "https://": proxy_address}
-        try:
-            response = requests.get(bog_url, headers = header, proxies = proxy_dict)
+    proxy_dict = {"http" : proxy_address,
+                  "https": proxy_address}
     
-            filedata = BytesIO(response.content)
-    
-            df = pd.read_excel(filedata, engine = 'xlrd', sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
-        except Exception as e:
-            print (e)
-            i+=1
-            continue
-        
-        break
+    response = requests.get(bog_url, headers = header, proxies = proxy_dict)
 
-    
-    
-    
-    #df = pd.read_excel(url,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
-    #df = pd.read_excel(url,sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+    filedata = BytesIO(response.content)
 
-    
-  
+    df = pd.read_excel(filedata, engine = 'xlrd', sheet_name='Loans_Amounts', index_col=0).iloc[7:,6]
+
     
     return df
+
 
 def check_for_new(already_indb, df):
     #to put new item in db

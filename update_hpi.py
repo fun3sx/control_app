@@ -8,19 +8,43 @@ Created on Sat May 28 12:32:36 2022
 import requests
 import pandas as pd
 import api_functions
-from proxies import get_proxies
-import random
+#from proxies import get_proxies
+#import random
 from io import BytesIO
+import os
+from dotenv import load_dotenv, find_dotenv
 
 
 def read_from_bog():
+    load_dotenv(find_dotenv())
     
+    proxy_address = os.environ.get("PROXY_ADDRESS")
+    
+    bog_url = "https://www.bankofgreece.gr/RelatedDocuments/TE_PRICES_INDICES_HISTORICAL_SERIES.xls"
+    
+    header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+    proxy_dict = {"http" : proxy_address,
+                  "https": proxy_address}
+    
+    response = requests.get(bog_url, headers = header, proxies = proxy_dict)
+    '''
+    #print(response.content)
+    print(response.request.headers)
+    print("Response Headers:")
+    for header, value in response.headers.items():
+        print(header, ":", value)
+    '''   
+        
+    filedata = BytesIO(response.content)
+    df = pd.read_excel(filedata)
+
+    
+    '''
     proxies = get_proxies()
     random.shuffle(proxies)
     header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-
-    bog_url = "http://www.bankofgreece.gr/RelatedDocuments/TE_PRICES_INDICES_HISTORICAL_SERIES.xls"
-    
+  
     #read data from bank of greece via proxy
     i=0
     while i<len(proxies):
@@ -28,6 +52,7 @@ def read_from_bog():
         print(proxies[i]['ip'])
         proxy_dict = {"http://" : proxy_address,
                       "https://": proxy_address}
+
         try:
             response = requests.get(bog_url, headers = header, proxies = proxy_dict)
     
@@ -45,7 +70,7 @@ def read_from_bog():
         
         break
     
-    
+    '''
     #read data from bank of greece
     #df = pd.read_excel("https://www.bankofgreece.gr/RelatedDocuments/TE_PRICES_INDICES_HISTORICAL_SERIES.xls")
     
@@ -116,8 +141,8 @@ def main(url):
    #determine what needs update and what is new, if any
    to_enter, to_update = check_for_new(already_indb, quarters, values)
    
-   #print(to_enter)
-   #print(to_update)
+   print(to_enter)
+   print(to_update)
    
    
    #update data in db
