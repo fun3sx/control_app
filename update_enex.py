@@ -55,7 +55,7 @@ def main(url):
     crete_renewables = df[df.CLASSIFICATION == 'CRETE RENEWABLES']
     lignite = df[df.CLASSIFICATION == 'Lignite']
     natural_gas = df[df.CLASSIFICATION == 'Natural Gas']
-    res = df[df.CLASSIFICATION == 'RES']
+    res = df[(df.CLASSIFICATION == 'RES') & (df.SIDE_DESCR == 'Sell')]
 
     #data = requests.get(url, {'day':date})
     
